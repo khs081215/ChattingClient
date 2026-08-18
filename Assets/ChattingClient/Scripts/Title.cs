@@ -12,19 +12,12 @@ using UnityEngine.Serialization;
  */
 public class Title : MonoBehaviour
 {
-    public TMP_InputField chattingInputField;
-
-
-    void Update()
-    {
-        if (Input.GetKey("escape"))
-            Application.Quit();
-    }
-
+    public TMP_InputField nameInputField;
+    
     public void MoveScene()
     {
-        if (chattingInputField.text.Length == 0) UserName.name = "Witch";
-        else UserName.name = chattingInputField.text;
+        if (nameInputField.text.Length == 0) UserName.name = "Witch";
+        else UserName.name = nameInputField.text;
 
         SceneManager.LoadScene(1);
     }

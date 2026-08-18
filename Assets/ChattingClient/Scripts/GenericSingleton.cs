@@ -29,7 +29,7 @@ public class GenericSingleton<T> : MonoBehaviour where T: MonoBehaviour
         if (instance == null)
         {
             instance = this as T;
-            (instance as GenericSingleton<T>) ? .InitReference();
+            (instance as GenericSingleton<T>) ?.InitReference();
         }
         else
         {
