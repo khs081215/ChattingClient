@@ -720,7 +720,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Enter text...
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: fead8866618578142a9009487d6a926f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7db74b4c82d579847945ed6c223b9c4b, type: 2}
   m_sharedMaterial: {fileID: 3743968670744656553, guid: fead8866618578142a9009487d6a926f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -784,7 +784,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &732289491
@@ -945,8 +945,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90ec444dc204ca947915b58fe9a10e7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChatMessage: {fileID: 1422448176}
+  chatMessage: {fileID: 1422448176}
   chattingInputField: {fileID: 2017572610}
+  ipString: 127.0.0.1
+  portInt: 9190
 --- !u!4 &1350449958
 Transform:
   m_ObjectHideFlags: 0
@@ -1326,7 +1328,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: fead8866618578142a9009487d6a926f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7db74b4c82d579847945ed6c223b9c4b, type: 2}
   m_sharedMaterial: {fileID: 3743968670744656553, guid: fead8866618578142a9009487d6a926f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1390,7 +1392,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1606272055

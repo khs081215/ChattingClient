@@ -20,12 +20,12 @@ public class IOCPchatClnt : MonoBehaviour
     public static Socket hSocket;
 
     private string chattingText;
-    private bool flag = false;
     private Thread recvThread;
     private static Queue<string> receiveQueue = new Queue<string>();
-    private static Queue<string> sendQueue = new Queue<string>();
-    [SerializeField] private Text ChatMessage;
+    [SerializeField] private Text chatMessage;
     [SerializeField] private TMP_InputField chattingInputField;
+    [SerializeField] private string ipString = "127.0.0.1";
+    [SerializeField] private int portInt = 9190;
 
     ///서버에 연결되면, 수신 전용 스레드를 동작합니다.
     private async void Start()
@@ -59,8 +59,8 @@ public class IOCPchatClnt : MonoBehaviour
             string strbuf = receiveQueue.Dequeue().TrimEnd('\0');
             Debug.Log(strbuf);
             Debug.Log(strbuf.Length);
-            ChatMessage.text += strbuf;
-            ChatMessage.text += "\n";
+            chatMessage.text += strbuf;
+            chatMessage.text += "\n";
         }
     }
 
@@ -68,7 +68,7 @@ public class IOCPchatClnt : MonoBehaviour
     private async Task ConnectToServer()
     {
         hSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        await hSocket.ConnectAsync(IPAddress.Parse("127.0.0.1"), 9190);
+        await hSocket.ConnectAsync(IPAddress.Parse(ipString), portInt);
     }
 
     /// 소켓에서 데이터를 받아와서 수신 큐에 저장합니다.
