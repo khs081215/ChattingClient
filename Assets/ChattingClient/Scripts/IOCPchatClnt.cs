@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Concurrent;
 using UnityEngine.Serialization;
 
 /**
@@ -21,7 +22,10 @@ public class IOCPchatClnt : MonoBehaviour
 
     private string chattingText;
     private Thread recvThread;
-    private static Queue<string> receiveQueue = new Queue<string>();
+    private int byteMaxNum = 100;
+    
+    //thread-safe 보장을 위한 ConcurrentQueue
+    private static ConcurrentQueue<string> receiveQueue = new ConcurrentQueue<string>();
     [SerializeField] private Text chatMessage;
     [SerializeField] private TMP_InputField chattingInputField;
     [SerializeField] private string ipString = "127.0.0.1";
@@ -68,11 +72,13 @@ public class IOCPchatClnt : MonoBehaviour
             hSocket.Send(message, message.Length, SocketFlags.None);
             chattingText = null;
         }
-
-        if (receiveQueue.Count > 0)
+        
+        string strbuf;
+        //여러 메시지를 동시 수신 처리 위해 while 사용
+        while (receiveQueue.TryDequeue(out strbuf))
         {
-            //강제로 100바이트 크기이므로, 문자열의 원래 크기에 맞게 '\0'을 없애줍니다. 
-            string strbuf = receiveQueue.Dequeue().TrimEnd('\0');
+            //문자열이 강제로 byteMaxNum 바이트 크기이므로, 문자열의 원래 크기에 맞게 '\0'을 없애줍니다. 
+            strbuf=strbuf.TrimEnd('\0');
             Debug.Log(strbuf);
             Debug.Log(strbuf.Length);
             chatMessage.text += strbuf;
@@ -92,9 +98,9 @@ public class IOCPchatClnt : MonoBehaviour
     {
         try
         {
+            byte[] ret = new byte[byteMaxNum];
             while (bIsRunning)
             {
-                byte[] ret = new byte[100];
                 int recvFlag = socket.Receive(ret, ret.Length, SocketFlags.None);
                 if (recvFlag <= 0)
                 {
@@ -126,7 +132,7 @@ public class IOCPchatClnt : MonoBehaviour
         bIsRunning = false;
         
         // 소켓의 송수신 경로를 닫아 Receive를 리턴시킴
-        hSocket.Shutdown(SocketShutdown.Both);
+        hSocket?.Shutdown(SocketShutdown.Both);
         hSocket?.Close();
     }
 }
