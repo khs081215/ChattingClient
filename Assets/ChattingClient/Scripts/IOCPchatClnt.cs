@@ -26,12 +26,28 @@ public class IOCPchatClnt : MonoBehaviour
     [SerializeField] private TMP_InputField chattingInputField;
     [SerializeField] private string ipString = "127.0.0.1";
     [SerializeField] private int portInt = 9190;
+    
+    //수신 스레드 동작 여부
+    private volatile bool bIsRunning = true;
+
 
     ///서버에 연결되면, 수신 전용 스레드를 동작합니다.
     private async void Start()
     {
-        await ConnectToServer();
+        try
+        {
+            await ConnectToServer();
+        }
+        catch (SocketException e)
+        {
+            Debug.LogError($"Socket Error: {e.SocketErrorCode}");
+            Debug.LogError($"Message: {e.Message}");
+            return;
+        }
+        
+        //소켓에 정상적으로 연결되었을 경우    
         recvThread = new Thread(() => RecvThreadMain(hSocket));
+        recvThread.IsBackground = true;
         recvThread.Start();
     }
 
@@ -74,13 +90,43 @@ public class IOCPchatClnt : MonoBehaviour
     /// 소켓에서 데이터를 받아와서 수신 큐에 저장합니다.
     private void RecvThreadMain(Socket socket)
     {
-        while (true)
+        try
         {
-            byte[] ret = new byte[100];
-            socket.Receive(ret, ret.Length, SocketFlags.None);
-            string str = Encoding.UTF8.GetString(ret);
+            while (bIsRunning)
+            {
+                byte[] ret = new byte[100];
+                int recvFlag = socket.Receive(ret, ret.Length, SocketFlags.None);
+                if (recvFlag <= 0)
+                {
+                    break;
+                }
 
-            receiveQueue.Enqueue(str);
+                string str = Encoding.UTF8.GetString(ret);
+
+                receiveQueue.Enqueue(str);
+            }
         }
+        catch (SocketException)
+        {
+            Debug.LogError("SocketException");
+            return;
+        }
+        catch (ObjectDisposedException)
+        {
+            Debug.LogError("ObjectDisposedException");
+            return;
+        }
+    }
+    
+    /**
+     * 유니티 에디터 클라이언트 종료시 명시적 연결 종료
+     */
+    private void OnDestroy()
+    {
+        bIsRunning = false;
+        
+        // 소켓의 송수신 경로를 닫아 Receive를 리턴시킴
+        hSocket.Shutdown(SocketShutdown.Both);
+        hSocket?.Close();
     }
 }
