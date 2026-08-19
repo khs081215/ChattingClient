@@ -77,8 +77,6 @@ public class IOCPchatClnt : MonoBehaviour
         //여러 메시지를 동시 수신 처리 위해 while 사용
         while (receiveQueue.TryDequeue(out strbuf))
         {
-            //문자열이 강제로 byteMaxNum 바이트 크기이므로, 문자열의 원래 크기에 맞게 '\0'을 없애줍니다. 
-            strbuf = strbuf.TrimEnd('\0');
             Debug.Log(strbuf);
             Debug.Log(strbuf.Length);
             chatMessage.text += strbuf;
@@ -107,7 +105,7 @@ public class IOCPchatClnt : MonoBehaviour
                     break;
                 }
 
-                string str = Encoding.UTF8.GetString(ret);
+                string str = Encoding.UTF8.GetString(ret, 0, recvFlag);
 
                 receiveQueue.Enqueue(str);
             }
