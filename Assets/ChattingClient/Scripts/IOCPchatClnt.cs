@@ -22,7 +22,7 @@ public class IOCPchatClnt : MonoBehaviour
 
     private string chattingText;
     private Thread recvThread;
-    private int byteMaxNum = 100;
+    private int byteMaxNum = 1024;
 
     //thread-safe 보장을 위한 ConcurrentQueue
     private static ConcurrentQueue<string> receiveQueue = new ConcurrentQueue<string>();
@@ -66,10 +66,7 @@ public class IOCPchatClnt : MonoBehaviour
             chattingText = "[" + UserName.name + "] : ";
             chattingText += chattingInputField.text;
             chattingInputField.text = null;
-
-            byte[] message = System.Text.Encoding.UTF8.GetBytes(chattingText);
-
-            hSocket.Send(message, message.Length, SocketFlags.None);
+            SendMessageToServer(chattingText);
             chattingText = null;
         }
 
@@ -83,6 +80,43 @@ public class IOCPchatClnt : MonoBehaviour
             chatMessage.text += "\n";
         }
     }
+    // 문자열에 Length Prefix(Big Endian)를 붙여 전송용 바이트 배열로 만듭니다.
+    private byte[] MakePacket(string inText)
+    {
+        byte[] message = Encoding.UTF8.GetBytes(inText);
+
+        byte[] length = BitConverter.GetBytes(message.Length);
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(length);
+        }
+
+        byte[] packet = new byte[length.Length + message.Length];
+        Buffer.BlockCopy(length, 0, packet, 0, length.Length);
+        Buffer.BlockCopy(message, 0, packet, length.Length, message.Length);
+
+        return packet;
+    }
+
+    private void SendMessageToServer(string inText)
+    {
+        byte[] finalMessage = MakePacket(inText);
+            
+        //한번에 다 보내지 못할 수 있으므로 반복
+        int totalSent = 0;
+        while (totalSent < finalMessage.Length)
+        {
+            int sent = hSocket.Send(
+                finalMessage,
+                totalSent,
+                finalMessage.Length - totalSent,
+                SocketFlags.None
+            );
+
+            totalSent += sent;
+        }
+    }
+    
 
     /// 로컬 PC 서버에 TCP로 접속합니다.
     private async Task ConnectToServer()
@@ -130,7 +164,15 @@ public class IOCPchatClnt : MonoBehaviour
         bIsRunning = false;
 
         // 소켓의 송수신 경로를 닫아 Receive를 리턴시킴
-        hSocket?.Shutdown(SocketShutdown.Both);
-        hSocket?.Close();
+        try
+        {
+            hSocket?.Shutdown(SocketShutdown.Both);
+            hSocket?.Close();
+        }
+        catch (SocketException)
+        {
+            Debug.LogError("SocketException");
+            return;
+        }
     }
 }
