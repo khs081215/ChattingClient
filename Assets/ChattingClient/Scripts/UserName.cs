@@ -4,5 +4,5 @@ using UnityEngine;
 
 public static class UserName
 {
-    public static string name="";
+    public static string name = "";
 }

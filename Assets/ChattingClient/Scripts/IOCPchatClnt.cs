@@ -23,14 +23,14 @@ public class IOCPchatClnt : MonoBehaviour
     private string chattingText;
     private Thread recvThread;
     private int byteMaxNum = 100;
-    
+
     //thread-safe 보장을 위한 ConcurrentQueue
     private static ConcurrentQueue<string> receiveQueue = new ConcurrentQueue<string>();
     [SerializeField] private Text chatMessage;
     [SerializeField] private TMP_InputField chattingInputField;
     [SerializeField] private string ipString = "127.0.0.1";
     [SerializeField] private int portInt = 9190;
-    
+
     //수신 스레드 동작 여부
     private volatile bool bIsRunning = true;
 
@@ -48,7 +48,7 @@ public class IOCPchatClnt : MonoBehaviour
             Debug.LogError($"Message: {e.Message}");
             return;
         }
-        
+
         //소켓에 정상적으로 연결되었을 경우    
         recvThread = new Thread(() => RecvThreadMain(hSocket));
         recvThread.IsBackground = true;
@@ -72,13 +72,13 @@ public class IOCPchatClnt : MonoBehaviour
             hSocket.Send(message, message.Length, SocketFlags.None);
             chattingText = null;
         }
-        
+
         string strbuf;
         //여러 메시지를 동시 수신 처리 위해 while 사용
         while (receiveQueue.TryDequeue(out strbuf))
         {
             //문자열이 강제로 byteMaxNum 바이트 크기이므로, 문자열의 원래 크기에 맞게 '\0'을 없애줍니다. 
-            strbuf=strbuf.TrimEnd('\0');
+            strbuf = strbuf.TrimEnd('\0');
             Debug.Log(strbuf);
             Debug.Log(strbuf.Length);
             chatMessage.text += strbuf;
@@ -123,14 +123,14 @@ public class IOCPchatClnt : MonoBehaviour
             return;
         }
     }
-    
+
     /**
      * 유니티 에디터 클라이언트 종료시 명시적 연결 종료
      */
     private void OnDestroy()
     {
         bIsRunning = false;
-        
+
         // 소켓의 송수신 경로를 닫아 Receive를 리턴시킴
         hSocket?.Shutdown(SocketShutdown.Both);
         hSocket?.Close();

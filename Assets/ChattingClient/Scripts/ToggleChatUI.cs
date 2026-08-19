@@ -9,7 +9,8 @@ using UnityEngine.Serialization;
 public class ToggleChatUI : MonoBehaviour
 {
     public GameObject chatUI;
-   public void OnClick()
+
+    public void OnClick()
     {
         if (chatUI.activeSelf == true) chatUI.SetActive(false);
         else chatUI.SetActive(true);

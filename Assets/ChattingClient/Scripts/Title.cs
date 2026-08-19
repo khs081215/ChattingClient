@@ -13,7 +13,7 @@ using UnityEngine.Serialization;
 public class Title : MonoBehaviour
 {
     public TMP_InputField nameInputField;
-    
+
     public void MoveScene()
     {
         if (nameInputField.text.Length == 0) UserName.name = "Nameless";
