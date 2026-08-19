@@ -15,6 +15,6 @@ public class SettingManager : GenericSingleton<SettingManager>
 
     protected override void InitReference()
     {
-        Cursor.lockState = CursorLockMode.Confined;
+        //Cursor.lockState = CursorLockMode.Confined;
     }
 }
